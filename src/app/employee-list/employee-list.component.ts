@@ -1,30 +1,30 @@
-import { Component, OnInit } from '@angular/core';
-import { Employee } from '../employee';
-import { EmployeeService } from '../employee.service';
-import { Router} from '@angular/router';
+import { Component, OnInit } from "@angular/core";
+import { Employee } from "../employee";
+import { EmployeeService } from "../employee.service";
+import { Router } from "@angular/router";
+import { shareReplay } from "rxjs/operators";
 
 @Component({
-  selector: 'app-employee-list',
-  templateUrl: './employee-list.component.html',
-  styleUrls: ['./employee-list.component.css']
+  selector: "app-employee-list",
+  templateUrl: "./employee-list.component.html",
+  styleUrls: ["./employee-list.component.css"]
 })
 export class EmployeeListComponent implements OnInit {
-  public employeearray : Employee[] ;
-
-  constructor( private employeeService : EmployeeService, private route:Router) { }
-
+  public employeearray: Employee[];
+  constructor(
+    private employeeService: EmployeeService,
+    private route: Router
+  ) {}
 
   ngOnInit() {
+    this.employeeService
+      .getEmployees()
+      .subscribe(
+        x => (console.log(JSON.stringify(x)), (this.employeearray = x))
+      );
+  }
 
-   this.employeearray = this.employeeService.getEmployeesList();
-
-}
-
-
-deleteEmployee(emp:Employee)
-{
-  debugger;
-  this.employeeService.deleteEmployee(emp);
-  this.ngOnInit();
-}
+  deleteEmployee(id: string) {
+    this.employeeService.deleteEmployee(id).subscribe(x => this.ngOnInit());
+  }
 }

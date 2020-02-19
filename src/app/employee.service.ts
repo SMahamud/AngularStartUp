@@ -1,65 +1,51 @@
-import { Injectable } from '@angular/core';
-import { Employee } from './employee';
+import { Injectable } from "@angular/core";
+import { Employee } from "./employee";
+import { Observable } from "rxjs";
+import { HttpClient } from "@angular/common/http";
+import { forkJoin } from "rxjs";
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: "root"
 })
 export class EmployeeService {
-  public employeeList : Employee[] ;
+  private Url = "https://localhost:44311/api/Employee";
 
+  constructor(private http: HttpClient) {}
 
-  constructor() {
-    var empdata= [
-      {id:1,firstName:"mahamud",lastName:"shaik",emailId:"123@gmail.com",active:true},
-      {id:2,firstName:"jani",lastName:"shaik",emailId:"456@gmail.com",active:true},
-      {id:3,firstName:"anita",lastName:"bagaria",emailId:"789@gmail.com",active:true}
-    ];
-    debugger;
-    if(window.localStorage && (localStorage.getItem("employees") ==null))
-    {
-
-localStorage.setItem("employees",JSON.stringify(empdata));
-
-    }
-   }
-
-   getEmployeesList(): Employee[] {
-     debugger;
-    let storage = JSON.parse(localStorage.getItem("employees"));
-   return storage as Employee[];
+  getEmployees(): Observable<Employee[]> {
+    return this.http.get<Employee[]>(`${this.Url}`);
   }
 
-  createEmployee(emp:Employee):boolean{
-    let storage = JSON.parse(localStorage.getItem("employees")) as Employee[];
-             storage.push(emp);
-             
-             localStorage.setItem("employees",JSON.stringify(storage));
-    return true;
+  // getEmployees(): Observable<Employee[]> {
+  //   const response1 = this.http.get<Employee>(
+  //     `${this.Url}/1f999283-2950-4b22-a7b0-aaae134308ee`
+  //   );
+  //   const response2 = this.http.get<Employee>(
+  //     `${this.Url}/0e3f7003-f080-4c71-9bff-7eeadf533e7d`
+  //   );
+  //   const response3 = this.http.get<Employee>(
+  //     `${this.Url}/1f999283-2950-4b22-a7b0-aaae134308ee`
+  //   );
+  //   const response4 = this.http.get<Employee>(
+  //     `${this.Url}/1f999283-2950-4b22-a7b0-aaae134308ee`
+  //   );
+
+  //   return forkJoin([response1, response2, response3, response4]);
+  // }
+
+  createEmployee(emp: Employee): Observable<any> {
+    return this.http.post(`${this.Url}`, emp);
   }
 
-  deleteEmployee(emp:Employee){
-    let storage = JSON.parse(localStorage.getItem("employees")) as Employee[];
-    let index = storage.findIndex(x =>x.id == emp.id && x.emailId == emp.emailId );
-    if(index!= -1){
-      storage.splice(index,1);
-      localStorage.setItem("employees",JSON.stringify(storage));
-    }
-   
+  deleteEmployee(id: string): Observable<any> {
+    return this.http.delete(`${this.Url}/${id}`);
   }
 
-  getEmployee(id:number): Employee{
-    let storage = JSON.parse(localStorage.getItem("employees")) as Employee[];
-    return storage.find(x=>x.id==id);
+  getEmployee(id: string): Observable<Employee> {
+    return this.http.get<Employee>(`${this.Url}/${id}`);
   }
 
-  updateEmployee(id:number,emp:Employee){
-    debugger;
-    let storage = JSON.parse(localStorage.getItem("employees")) as Employee[];
-    let index = storage.findIndex(x =>x.id == id);
-    if(index!= -1)
-      storage.splice(index,1);
-      storage.push(emp);
-      localStorage.setItem("employees",JSON.stringify(storage));
+  updateEmployee(id: string, emp: Employee): Observable<any> {
+    return this.http.put(`${this.Url}/${id}`, emp);
   }
-
 }
